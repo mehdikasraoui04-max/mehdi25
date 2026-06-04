@@ -21,7 +21,19 @@ async function loadCategories() {
 
 // API 2 — Plats d'une catégorie
 async function filterByCategory(category) {
-  const res = await fetch(`${API}/filter.php?c=${category}`);
+  // When testing locally (file://), try to read a local JSON test file.
+  if (location.protocol === 'file:') {
+    try {
+      const res = await fetch('mealdb_mini_app.json');
+      const data = await res.json();
+      return data.meals || [];
+    } catch (err) {
+      console.warn('Local test file for filterByCategory not found or invalid', err);
+      return [];
+    }
+  }
+
+  const res = await fetch(`${API}/filter.php?c=${encodeURIComponent(category)}`);
   const data = await res.json();
   return data.meals;
 }
