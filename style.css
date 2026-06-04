@@ -240,15 +240,19 @@ h1 span {
   animation: spin 0.7s linear infinite;
   margin-bottom: 1rem;
 }
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
+.body {
+  font-family: 'DM Sans', sans-serif;
+}
+@font-face {
+  font-family: 'DM Sans';
+  src: url('fonts/DM-Sans.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
 }
 
-/* ── RESPONSIVE MOBILE ────────────────────────────── */
-@media (max-width: 640px) {
-  h1                { font-size: 1.7rem; }
-  .detail-layout    { grid-template-columns: 1fr; }
-  .ingredients-grid { grid-template-columns: 1fr; }
-  .grid-4           { grid-template-columns: repeat(2, 1fr); }
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('fonts/PlayfairDisplay-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
 }

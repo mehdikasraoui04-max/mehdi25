@@ -73,7 +73,7 @@ function showMeals() {
         </div>
     `;
 }
-fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=chicken")
+fetch("file:///C:/Users/pc/Downloads/mealdb_mini_app.html")
 .then(res => res.json())
 .then(data => {
     const results = document.getElementById("home-results");
