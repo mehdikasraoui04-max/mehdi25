@@ -63,3 +63,25 @@ async function openMeal(id) {
   alert(meal.strMeal + '\n\n' + meal.strInstructions.slice(0, 200) + '...');
   // → remplace alert par un vrai écran détail
 }
+function showMeals() {
+    const results = document.getElementById("home-results");
+
+    results.innerHTML = `
+        <div class="meal">
+            <img src="images/food1.jpg" alt="Meal">
+            <h3>Pizza</h3>
+        </div>
+    `;
+}
+fetch("https://www.themealdb.com/api/json/v1/1/search.php?s=chicken")
+.then(res => res.json())
+.then(data => {
+    const results = document.getElementById("home-results");
+
+    results.innerHTML = data.meals.map(meal => `
+        <div class="meal">
+            <img src="${meal.strMealThumb}" />
+            <h3>${meal.strMeal}</h3>
+        </div>
+    `).join("");
+});
