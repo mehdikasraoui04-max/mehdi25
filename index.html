@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="description" content="MealExplorer - find recipes and meal ideas." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <title>MealExplorer</title>
+</head>
+<body>
+  <!-- Navigation -->
+  <header>
+    <nav>
+      <button onclick="showScreen('home')">Accueil</button>
+      <button onclick="showScreen('categories')">Catégories</button>
+      <button onclick="showScreen('search')">Recherche</button>
+    </nav>
+  </header>
+
+  <!-- Écran 1 : Accueil -->
+  <div id="screen-home" class="screen active">
+    <input id="home-input" placeholder="Rechercher..."/>
+    <button onclick="searchMeals()">Rechercher</button>
+    <div id="home-results"></div>
+    <div id="home-categories"></div>
+  </div>
+
+  <!-- Écran 2 : Catégories -->
+  <div id="screen-categories" class="screen">
+    <div id="all-categories"></div>
+  </div>
+
+  <!-- Écran 3 : Recherche -->
+  <div id="screen-search" class="screen">
+    <input id="search-input" placeholder="Nom du plat..."/>
+    <button onclick="doSearch()">Go</button>
+    <div id="search-results"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
