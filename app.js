@@ -118,3 +118,77 @@ if (location.protocol === 'file:') {
       console.warn('No local test file found or failed to read it', err);
     });
 }
+// convert_html_to_json.js
+// Usage: node convert_html_to_json.js
+// Requires: npm install cheerio
+const fs = require('fs');
+const path = require('path');
+const cheerio = require('cheerio');
+
+const inputFile = path.join(__dirname, 'downloaded_mealdb.html');
+const outFile = path.join(__dirname, 'mealdb_mini_app_full.json');
+
+if (!fs.existsSync(inputFile)) {
+  console.error('Error: downloaded_mealdb.html not found in project root.');
+  process.exit(1);
+}
+
+const html = fs.readFileSync(inputFile, 'utf8');
+const $ = cheerio.load(html);
+
+// Heuristic selectors - adjust if needed for your downloaded HTML
+const candidateSelectors = ['.meal', '.meal-card', '.card', '.recipe', 'article', '.result', '.search-result', '.col-md-4'];
+
+let nodes = [];
+for (const sel of candidateSelectors) {
+  const found = $(sel);
+  if (found && found.length) {
+    found.each((i, el) => nodes.push(el));
+    if (nodes.length) break;
+  }
+}
+
+// Fallback: find elements that contain an image + heading
+if (!nodes.length) {
+  $('img').each((i, el) => {
+    const parent = $(el).closest('div, article');
+    if (parent && parent.length) nodes.push(parent[0]);
+  });
+}
+
+// Deduplicate by HTML
+nodes = Array.from(new Map(nodes.map(n => [$(n).html(), n])).values());
+
+const meals = [];
+nodes.forEach((n, idx) => {
+  const node = $(n);
+  let name = node.find('.meal-name, .name, .title, h3, h2, h1').first().text().trim();
+  if (!name) {
+    name = node.contents().filter(function() { return this.type === 'text'; }).text().trim();
+  }
+  let img = node.find('img').first().attr('src') || '';
+  let id = node.attr('data-id') || node.attr('id') || '';
+  if (!id) {
+    const anchor = node.find('a[href*="lookup.php?i="]');
+    if (anchor && anchor.length) {
+      const m = anchor.attr('href').match(/lookup\.php\?i=(\d+)/);
+      if (m) id = m[1];
+    }
+  }
+  if (!id) id = String(100000 + idx);
+  if (img && img.startsWith('//')) img = 'https:' + img;
+  if (name) meals.push({ idMeal: id, strMeal: name, strMealThumb: img });
+});
+
+// Final fallback: try to build from images + alt text
+if (!meals.length) {
+  $('img').each((i, im) => {
+    const node = $(im);
+    const src = node.attr('src') || '';
+    const title = node.attr('alt') || node.parent().find('h3, h2, h1').first().text().trim() || '';
+    if (title) meals.push({ idMeal: String(200000 + i), strMeal: title, strMealThumb: src });
+  });
+}
+
+fs.writeFileSync(outFile, JSON.stringify({ meals }, null, 2), 'utf8');
+console.log('Wrote', outFile, 'with', meals.length, 'meals.');
