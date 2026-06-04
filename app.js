@@ -1,4 +1,6 @@
-const API = 'https://www.themealdb.com/api/json/v1/1';
+const API = (location.protocol === 'file:')
+  ? 'file:///C:/Users/pc/Downloads/mealdb_mini_app.html'
+  : 'https://www.themealdb.com/api/json/v1/1';
 
 // ── BLOC 1 : Navigation entre écrans ──────────────────
 function showScreen(name) {
@@ -73,15 +75,34 @@ function showMeals() {
         </div>
     `;
 }
-fetch("file:///C:/Users/pc/Downloads/mealdb_mini_app.html")
-.then(res => res.json())
-.then(data => {
-    const results = document.getElementById("home-results");
-
-    results.innerHTML = data.meals.map(meal => `
-        <div class="meal">
+// If running the page from the local filesystem, try to load a local test file.
+// Place `mealdb_mini_app.html` or a JSON test file in the project root for easier local testing.
+if (location.protocol === 'file:') {
+  fetch('mealdb_mini_app.html')
+    .then(resp => {
+      const ct = resp.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        return resp.json().then(data => ({ type: 'json', data }));
+      }
+      return resp.text().then(text => ({ type: 'html', text }));
+    })
+    .then(result => {
+      const results = document.getElementById('home-results');
+      if (!results) return;
+      if (result.type === 'json') {
+        const meals = result.data.meals || [];
+        results.innerHTML = meals.map(meal => `
+          <div class="meal">
             <img src="${meal.strMealThumb}" />
             <h3>${meal.strMeal}</h3>
-        </div>
-    `).join("");
-});
+          </div>
+        `).join('');
+      } else {
+        // If the local file is HTML, show a simple notice so you know it was loaded.
+        results.innerHTML = '<div class="empty">Local test file loaded. If you want JSON data, put a JSON file named mealdb_mini_app.html (or change the path) in the project root.</div>';
+      }
+    })
+    .catch(err => {
+      console.warn('No local test file found or failed to read it', err);
+    });
+}
